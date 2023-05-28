@@ -22,7 +22,9 @@ scarped_data = []
 tr_tags = soup.find_all("tr")  # tbody.find_all("tr")
 
 SDSS_reached = 0
-L3426_reached = -4
+end_reached = False
+name_undefined = False
+unconfirmed_brown_dwarfs_reached = False
 
 # Loop for para extrair todas as tags <td>
 for tr_tag in tr_tags:
@@ -34,37 +36,44 @@ for tr_tag in tr_tags:
 
     for td_tag in tr_tag.find_all("td"):
         index += 1
-        if (index == 0 or index == 5 or index == 8-SDSS_reached or index == 9-SDSS_reached) and L3426_reached < 0:
-            data = td_tag.text.strip()
+        data = td_tag.text.strip()
+
+        if data == "L 34-26" and index == 0:
+            end_reached = True
+        elif data == "OGLE_TR_109" and index == 0:
+            unconfirmed_brown_dwarfs_reached = True
+        elif data == "SDSS J000013.54+255418.6 [de]" and index == 0:
+            SDSS_reached = 1
+            unconfirmed_brown_dwarfs_reached = False
+        
+        if data == "" and index == 0:
+            name_undefined = True
+        elif data != "" and index == 0 and name_undefined == True:
+            name_undefined = False
+
+        if (index == 0 or index == 5 or index == 8-SDSS_reached or index == 9-SDSS_reached) and end_reached == False and unconfirmed_brown_dwarfs_reached == False and name_undefined == False:
             # if SDSS_reached != 0:
-            # print("td_tag:", td_tag)
-            print("data:", data)
-
-            if L3426_reached != -4:
-                L3426_reached += 1
-                print("L3426_reached:", L3426_reached)
-
-            if data == "SDSS J000013.54+255418.6 [de]" and index == 0:
-                SDSS_reached = 1
-            elif data == "L 34-26" and index == 0:
-                SDSS_reached = 0
-                L3426_reached += 1
+            print("td_tag:", td_tag)
+            indexToPrint = index
+            if index == 8 or index == 9:
+                indexToPrint = index-SDSS_reached
 
             if data == "":
-                data = "?"
+                data = "No Info"
+
+            print("data:", data+", index:", indexToPrint)
+
+            #if end_reached != -4:
+            #    end_reached += 1
+            #    print("end_reached:", end_reached)
 
             # Guarde todas as linhas <td> na lista vazia que criamos anteriormente
             temp_list.append(data)
-        else:
-            pass
-            # print("SDSS_reached:", SDSS_reached,
-            #      "L3426_reached:", L3426_reached)
 
-    scarped_data.append(temp_list)
+    if end_reached == False and unconfirmed_brown_dwarfs_reached == False and name_undefined == False:
+        scarped_data.append(temp_list)
 
 # print("scarped_data:", scarped_data)
-
-print("sadsars_reached:", L3426_reached)
 
 headers = ["name", "distance", "mass", "radius"]
 # "name", "radius", "mass", "distance"
