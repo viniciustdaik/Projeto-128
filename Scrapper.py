@@ -18,6 +18,9 @@ tbody = soup.find_all('tbody')  # _all('tbody')
 # Crie uma lista vazia
 scarped_data = []
 
+confirmed_brown_dwarfs_orbiting_primary_stars_data = []
+field_brown_dwarfs_data = []
+
 # Obtenha todas as tags <tr> da tabela
 tr_tags = soup.find_all("tr")  # tbody.find_all("tr")
 
@@ -40,7 +43,7 @@ for tr_tag in tr_tags:
 
         if data == "L 34-26" and index == 0:
             end_reached = True
-        elif data == "OGLE_TR_109" and index == 0:
+        elif data == "OGLE-TR-109" and index == 0:
             unconfirmed_brown_dwarfs_reached = True
         elif data == "SDSS J000013.54+255418.6 [de]" and index == 0:
             SDSS_reached = 1
@@ -70,8 +73,12 @@ for tr_tag in tr_tags:
             # Guarde todas as linhas <td> na lista vazia que criamos anteriormente
             temp_list.append(data)
 
-    if end_reached == False and unconfirmed_brown_dwarfs_reached == False and name_undefined == False:
-        scarped_data.append(temp_list)
+    #if end_reached == False and unconfirmed_brown_dwarfs_reached == False and name_undefined == False:
+        #scarped_data.append(temp_list)
+    if end_reached == False and unconfirmed_brown_dwarfs_reached == False and name_undefined == False and SDSS_reached == 0:
+        confirmed_brown_dwarfs_orbiting_primary_stars_data.append(temp_list)
+    elif end_reached == False and unconfirmed_brown_dwarfs_reached == False and name_undefined == False and SDSS_reached == 1:
+        field_brown_dwarfs_data.append(temp_list)
 
 # print("scarped_data:", scarped_data)
 
@@ -79,7 +86,13 @@ headers = ["name", "distance", "mass", "radius"]
 # "name", "radius", "mass", "distance"
 
 # Defina o dataframe do Pandas
-star_df_1 = pd.DataFrame(scarped_data, columns=headers)
+#star_df_1 = pd.DataFrame(scarped_data, columns=headers)
+star_df_1 = pd.DataFrame(confirmed_brown_dwarfs_orbiting_primary_stars_data, columns=headers)
 
 # Converta para CSV
-star_df_1.to_csv('scraped_data.csv', index=True, index_label="id")
+#star_df_1.to_csv('scraped_data.csv', index=True, index_label="id")
+star_df_1.to_csv('confirmed_brown_dwarfs_orbiting_primary_stars_data.csv', index=True, index_label="id")
+
+star_df_2 = pd.DataFrame(field_brown_dwarfs_data, columns=headers)
+
+star_df_2.to_csv('field_brown_dwarfs_data.csv', index=True, index_label="id")
